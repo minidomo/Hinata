@@ -1,0 +1,23 @@
+{
+  "name": "volleyball",
+  "version": "1.0.0",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "minidomo",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MiniDomo/Volleyball.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MiniDomo/Volleyball/issues"
+  },
+  "homepage": "https://github.com/MiniDomo/Volleyball#readme",
+  "description": "",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "moment": "^2.24.0"
+  }
+}
