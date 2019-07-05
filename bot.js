@@ -2,7 +2,6 @@
 
 const Discord = require('discord.js');
 const Logger = require('./util/logger');
-const Settings = require('./settings/settings');
 const { token } = require('./config.json');
 
 const client = new Discord.Client();
@@ -41,6 +40,7 @@ client.on('messageReactionRemove', (reaction, user) => {
 client.login(token);
 
 const exit = () => {
+    require('./settings/settings').save();
     process.exit(0);
 };
 

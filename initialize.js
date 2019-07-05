@@ -1,8 +1,10 @@
 'use strict';
 
 const Discord = require('discord.js');
+const Logger = require('./util/logger');
+const Settings = require('./settings/settings');
 
-let initialized = fales;
+let initialized = false;
 
 /**
  * @param {Discord.Client} client
@@ -11,7 +13,7 @@ module.exports = client => {
     if (initialized)
         return;
     initialized = true;
-    count++;
     client.user.setActivity('Volleyball!');
-
+    Settings.setClient(client);
+    Settings.load();
 };
