@@ -227,25 +227,3 @@ settings.getActivityParticipants = guild_id => {
 };
 
 module.exports = settings;
-
-/*
-{
-    "guild_id": {
-        "name": null,
-        "prefix": "/",
-        "channel_id": null,
-        "suggest_system": {
-            "minimum": 4,
-            "suggestions": [],
-            "message_id": null,
-            "votes": "[[emoji, 0]]",
-            "user_votes": "[[user, emoji]]"
-        },
-        "activity": {
-            "name": null,
-            "time": "None Set",
-            "participants": []
-        }
-    }
-}
-*/

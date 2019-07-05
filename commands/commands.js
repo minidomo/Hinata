@@ -1,6 +1,6 @@
 'use strict';
 
-const Logger = require('./logger');
+const Logger = require('../util/logger');
 
 const commands = {
     regular: new Map(),

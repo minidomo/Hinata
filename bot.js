@@ -3,12 +3,12 @@
 const Discord = require('discord.js');
 const Logger = require('./util/logger');
 const { token } = require('./config.json');
-const Handler = require('./handle');
+const Handler = require('./other/handle');
 
 const client = new Discord.Client();
 
 client.once('ready', () => {
-    require('./initialize')(client);
+    require('./other/initialize')(client);
     Logger.log(`Logged in as ${client.user.tag}`);
 });
 

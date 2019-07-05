@@ -1,8 +1,8 @@
 'use strict';
 
 const Discord = require('discord.js');
-const Logger = require('./util/logger');
-const Settings = require('./settings/settings');
+const Logger = require('../util/logger');
+const Settings = require('../settings/settings');
 
 let initialized = false;
 
@@ -14,7 +14,6 @@ module.exports = client => {
         return;
     initialized = true;
     client.user.setActivity('Volleyball!');
-    require('./util/commands');
     Settings.setClient(client);
     Settings.load();
 };

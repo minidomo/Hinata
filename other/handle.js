@@ -1,11 +1,12 @@
 'use strict';
 
-const Settings = require('./settings/settings');
+const Settings = require('../settings/settings');
 const Discord = require('discord.js');
-const { regular, admin } = require('./util/commands');
+const { regular, admin } = require('../commands/commands');
 
 module.exports = {
-    getArgs({ content, guild }) {
+    getArgs(msg) {
+        const { content, guild } = msg;
         const prefix = Settings.getPrefix(guild.id);
         if (content.startsWith(prefix)) {
             const match = /^([^\w\d\s]+)/.exec(content);
@@ -16,6 +17,7 @@ module.exports = {
                 } else {
                     arr = content.slice();
                 }
+                msg.delete(2000);
                 return {
                     base: arr.shift().toLowerCase(),
                     args: arr
