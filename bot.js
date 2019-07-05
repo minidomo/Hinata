@@ -3,6 +3,7 @@
 const Discord = require('discord.js');
 const Logger = require('./util/logger');
 const { token } = require('./config.json');
+const Handler = require('./handle');
 
 const client = new Discord.Client();
 
@@ -18,7 +19,10 @@ client.on('raw', event => {
 client.on('message', msg => {
     if (msg.author.id === client.user.id)
         return;
-
+    const res = Handler.getArgs(msg);
+    if (res) {
+        Handler.handle(msg, res);
+    }
 });
 
 client.on('messageReactionAdd', (reaction, user) => {
