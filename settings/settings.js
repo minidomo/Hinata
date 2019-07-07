@@ -1,5 +1,36 @@
 'use strict';
 
+/**
+ * @typedef {object} Channel
+ * @property {string} id
+ * @property {string} name
+ */
+
+/**
+ * @typedef {object} SuggestSystem
+ * @property {number} minimum
+ * @property {string[]} suggestions
+ * @property {string} message_id
+ * @property {Map<string, number>} votes
+ * @property {Map<string, string>} user_votes
+ */
+
+/**
+ * @typedef {object} Activity
+ * @property {string} name
+ * @property {?time} time
+ * @property {string[]} participants
+ */
+
+/**
+ * @typedef {object} GuildSettings
+ * @property {string} name
+ * @property {string} prefix
+ * @property {Channel} channel
+ * @property {SuggestSystem} suggest_system
+ * @property {Activity} activity
+ */
+
 const Discord = require('discord.js');
 const Logger = require('../util/logger');
 const Settings = require('./settings.json') || {};
@@ -21,16 +52,14 @@ settings.load = () => {
         if (removeGuilds.has(guild_id)) {
             removeGuilds.delete(guild_id);
             const guild = settings.getGuild(guild_id);
-            const { name } = map.get(guild_id);
-            if (name !== guild.name)
-                guild.name = name;
+            guild.name = map.get(guild_id).name;
             guild.suggest_system.votes = jsonToMap(guild.suggest_system.votes);
             guild.suggest_system.user_votes = jsonToMap(guild.suggest_system.user_votes);
         } else {
             settings.addGuild(guild_id);
         }
     });
-    removeGuilds.forEach(guild_id => delete Settings[guild_id]);
+    removeGuilds.forEach(guild_id => settings.removeGuild(guild_id));
     Logger.log('Finished loading settings');
 };
 
@@ -52,6 +81,13 @@ settings.setClient = cl => {
     client = cl;
 };
 
+settings.getClient = () => {
+    return client;
+}
+
+/**
+ * @returns {GuildSettings}
+ */
 settings.getGuild = guild_id => {
     return Settings[guild_id];
 };
@@ -160,10 +196,18 @@ settings.setSuggestMinimum = (guild_id, min) => {
     return false;
 };
 
-settings.getSuggestSuggestion = guild_id => {
-    // no setter or adder
+settings.getSuggestions = guild_id => {
     const guild = settings.getGuild(guild_id);
-    return guild ? guild.suggest_system.suggestions : null;
+    return guild ? guild.suggest_system.suggestions.slice() : null;
+};
+
+settings.clearSuggestions = guild_id => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        guild.suggest_system.suggestions = [];
+        return true;
+    }
+    return false;
 };
 
 settings.getMessageId = guild_id => {
@@ -181,15 +225,77 @@ settings.setMessageId = (guild_id, message_id) => {
 };
 
 settings.getVotes = guild_id => {
-    // no setter or adder
     const guild = settings.getGuild(guild_id);
-    return guild ? guild.suggest_system.votes : null;
+    return guild ? new Map(guild.suggest_system.votes) : null;
+};
+
+settings.addVote = (guild_id, emote) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        const votes = guild.suggest_system.votes;
+        if (!votes.has(emote))
+            votes.set(emote, 0);
+        votes.set(emote, votes.get(emote) + 1);
+        return true;
+    }
+    return false;
+};
+
+settings.removeVote = (guild_id, emote) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        const votes = guild.suggest_system.votes;
+        if (votes.has(emote)) {
+            votes.set(emote, votes.get(emote) - 1);
+            return true;
+        }
+    }
+    return false;
+}
+
+settings.clearVotes = guild_id => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        guild.suggest_system.votes.clear();
+        return true;
+    }
+    return false;
 };
 
 settings.getUserVotes = guild_id => {
-    // no setter or adder
     const guild = settings.getGuild(guild_id);
-    return guild ? guild.suggest_system.user_votes : null;
+    return guild ? new Map(guild.suggest_system.user_votes) : null;
+};
+
+settings.addUserVote = (guild_id, user_id, emote) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        const user_votes = guild.suggest_system.user_votes;
+        user_votes.set(user_id, emote);
+        return true;
+    }
+    return false;
+};
+
+settings.removeUserVote = (guild_id, user_id) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        const user_votes = guild.suggest_system.user_votes;
+        if (user_votes.has(user_id)) {
+            user_votes.delete(user_id);
+            return true;
+        }
+    }
+    return false;
+};
+
+settings.clearUserVotes = guild_id => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        guild.suggest_system.user_votes.clear();
+        return true;
+    }
+    return false;
 };
 
 settings.getActivityName = guild_id => {
@@ -223,7 +329,7 @@ settings.setActivityName = (guild_id, time) => {
 settings.getActivityParticipants = guild_id => {
     // no setter or adder
     const guild = settings.getGuild(guild_id);
-    return guild ? guild.activity.participants : null;
+    return guild ? guild.activity.participants.slice() : null;
 };
 
 module.exports = settings;

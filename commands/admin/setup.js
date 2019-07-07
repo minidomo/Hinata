@@ -1,6 +1,7 @@
 'use strict';
 
 const Settings = require('../../settings/settings');
+const Setup = require('../../channels/setup');
 
 module.exports = {
     name: 'setup',
@@ -15,11 +16,9 @@ module.exports = {
         return true;
     },
     execute(msg, obj) {
-        Settings.setChannelId(msg.guild.id, msg.channel.id);
-        Settings.setChannelName(msg.guild.id, msg.channel.name);
         msg.channel.send('Setting up this channel.')
             .then(feedback => {
-                
+                Setup(msg);
                 feedback.delete(2000);
             });
     }
