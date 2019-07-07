@@ -1,14 +1,14 @@
 'use strict';
 
-const Discord = require('discord.js');
+const client = require('./other/client');
+const Settings = require('./settings/settings');
 const Logger = require('./util/logger');
-const { token } = require('./config.json');
 const Handler = require('./other/handle');
 
-const client = new Discord.Client();
 
 client.once('ready', () => {
-    require('./other/initialize')(client);
+    Settings.load();
+    client.user.setActivity('Volleyball!');
     Logger.log(`Logged in as ${client.user.tag}`);
 });
 
@@ -41,10 +41,8 @@ client.on('messageReactionRemove', (reaction, user) => {
     }
 });
 
-client.login(token);
-
 const exit = () => {
-    require('./settings/settings').save();
+    Settings.save();
     process.exit(0);
 };
 

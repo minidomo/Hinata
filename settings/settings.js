@@ -31,18 +31,15 @@
  * @property {Activity} activity
  */
 
-const Discord = require('discord.js');
+const client = require('../other/client');
+
 const Logger = require('../util/logger');
+const Topic = require('../channels/topic');
 const Settings = require('./settings.json') || {};
 
 const fs = require('fs');
 
 const settings = {};
-
-/**
- * @type {Discord.Client}
- */
-let client;
 
 settings.load = () => {
     Logger.log('Loading settngs...');
@@ -55,11 +52,14 @@ settings.load = () => {
             guild.name = map.get(guild_id).name;
             guild.suggest_system.votes = jsonToMap(guild.suggest_system.votes);
             guild.suggest_system.user_votes = jsonToMap(guild.suggest_system.user_votes);
+            if (guild.channel.id) {
+                Topic(guild_id);
+            }
         } else {
             settings.addGuild(guild_id);
         }
     });
-    removeGuilds.forEach(guild_id => settings.removeGuild(guild_id));
+    removeGuilds.forEach(guild_id => delete Settings[guild_id]);
     Logger.log('Finished loading settings');
 };
 
@@ -74,16 +74,6 @@ settings.save = () => {
     fs.writeFileSync('./settings/settings.json', JSON.stringify(Settings, null, 4));
     Logger.log('Finished saving settings');
 };
-
-settings.setClient = cl => {
-    if (client)
-        return;
-    client = cl;
-};
-
-settings.getClient = () => {
-    return client;
-}
 
 /**
  * @returns {GuildSettings}
@@ -244,14 +234,19 @@ settings.addVote = (guild_id, emote) => {
 settings.removeVote = (guild_id, emote) => {
     const guild = settings.getGuild(guild_id);
     if (guild) {
-        const votes = guild.suggest_system.votes;
-        if (votes.has(emote)) {
-            votes.set(emote, votes.get(emote) - 1);
-            return true;
-        }
+        guild.suggest_system.votes.set(emote, votes.get(emote) - 1);
+        return true;
     }
     return false;
-}
+};
+
+settings.hasVote = (guild_id, emote) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        return guild.suggest_system.votes.has(emote);
+    }
+    return false;
+};
 
 settings.clearVotes = guild_id => {
     const guild = settings.getGuild(guild_id);
@@ -280,11 +275,16 @@ settings.addUserVote = (guild_id, user_id, emote) => {
 settings.removeUserVote = (guild_id, user_id) => {
     const guild = settings.getGuild(guild_id);
     if (guild) {
-        const user_votes = guild.suggest_system.user_votes;
-        if (user_votes.has(user_id)) {
-            user_votes.delete(user_id);
-            return true;
-        }
+        guild.suggest_system.user_votes.delete(user_id);
+        return true;
+    }
+    return false;
+};
+
+settings.hasUserVote = (guild_id, user_id) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        return guild.suggest_system.user_votes.has(user_id);
     }
     return false;
 };
@@ -327,9 +327,34 @@ settings.setActivityName = (guild_id, time) => {
 };
 
 settings.getActivityParticipants = guild_id => {
-    // no setter or adder
     const guild = settings.getGuild(guild_id);
     return guild ? guild.activity.participants.slice() : null;
+};
+
+settings.addParticipant = (guild_id, name) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        guild.activity.participants.push(name);
+        return true;
+    }
+    return false;
+};
+
+settings.removeParticipant = (guild_id, name) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        guild.activity.participants = guild.activity.participants.filter(val => val !== name);
+        return true;
+    }
+    return false;
+};
+
+settings.hasParticipant = (guild_id, name) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        return guild.activity.participants.includes(name);
+    }
+    return false;
 };
 
 module.exports = settings;
