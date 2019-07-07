@@ -23,6 +23,6 @@ module.exports = {
         const num = Math.max(1, parseInt(args[0]));
         Settings.setSuggestMinimum(msg.guild.id, num);
         msg.channel.send(`The minimum votes has been changed to: ${num}`);
-        // update poll?
+        // update poll if exist?
     }
 };
