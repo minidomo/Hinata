@@ -2,27 +2,21 @@
 
 const Discord = require('discord.js');
 const Settings = require('../../settings/settings');
+const Hex = require('../../util/hex');
 
 module.exports = {
     name: 'helpadmin',
-    desc: 'Shows available commmands.',
+    desc: 'Shows available admin commmands.',
     usage: 'helpadmin',
     validate(msg, obj) {
         return true;
     },
     execute({ author, guild }, obj) {
         helpEmbed
-            .setColor(`#${getHex()}`)
+            .setColor(`#${Hex.generate()}`)
             .setTitle(`Commands | Prefix: ${Settings.getPrefix(guild.id)}`);
         author.send(helpEmbed);
     }
-};
-
-const getHex = () => {
-    let hex = (Math.random() * 16777216).toString(16).replace(/(\.[\d\w]+)?$/, '');
-    while (hex.length < 6)
-        hex = '0' + hex;
-    return hex;
 };
 
 const fs = require('fs');

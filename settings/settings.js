@@ -7,9 +7,16 @@
  */
 
 /**
+ * @typedef {object} Suggestion
+ * @property {string} date
+ * @property {string} name
+ * @property {string} author
+ */
+
+/**
  * @typedef {object} SuggestSystem
  * @property {number} minimum
- * @property {string[]} suggestions
+ * @property {Suggestion[]} suggestions
  * @property {string} message_id
  * @property {Map<string, number>} votes
  * @property {Map<string, string>} user_votes
@@ -33,6 +40,7 @@
 
 const client = require('../other/client');
 
+const moment = require('moment');
 const Logger = require('../util/logger');
 const Topic = require('../channels/topic');
 const Settings = require('./settings.json') || {};
@@ -49,11 +57,31 @@ settings.load = () => {
         if (removeGuilds.has(guild_id)) {
             removeGuilds.delete(guild_id);
             const guild = settings.getGuild(guild_id);
-            guild.name = map.get(guild_id).name;
+            const realGuild = map.get(guild_id);
+            guild.name = realGuild.name;
             guild.suggest_system.votes = jsonToMap(guild.suggest_system.votes);
             guild.suggest_system.user_votes = jsonToMap(guild.suggest_system.user_votes);
             if (guild.channel.id) {
-                Topic(guild_id);
+                if (realGuild.channels.has(guild.channel.id)) {
+                    if (settings.getMessageId(guild_id)) {
+                        const channel = realGuild.channels.get(guild.channel.id);
+                        channel.fetchMessage(settings.getMessageId(guild_id))
+                            .catch(() => {
+                                settings.clearSuggestions(guild_id);
+                                settings.setMessageId(guild_id, null);
+                                settings.clearVotes(guild_id);
+                                settings.clearUserVotes(guild_id);
+                            });
+                    }
+                    Topic(guild_id);
+                } else {
+                    settings.setChannelId(guild_id, null);
+                    settings.setChannelName(guild_id, null);
+                    settings.clearSuggestions(guild_id);
+                    settings.setMessageId(guild_id, null);
+                    settings.clearVotes(guild_id);
+                    settings.clearUserVotes(guild_id);
+                }
             }
         } else {
             settings.addGuild(guild_id);
@@ -100,8 +128,8 @@ settings.addGuild = guild_id => {
             user_votes: new Map()
         },
         activity: {
-            name: null,
-            time: "None Set",
+            name: '-',
+            time: "-",
             participants: []
         }
     };
@@ -189,6 +217,18 @@ settings.setSuggestMinimum = (guild_id, min) => {
 settings.getSuggestions = guild_id => {
     const guild = settings.getGuild(guild_id);
     return guild ? guild.suggest_system.suggestions.slice() : null;
+};
+
+settings.addSuggestion = (guild_id, date, time, activity, username) => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        guild.suggest_system.suggestions.push({
+            date: `${moment(`${date} ${time} PM`, 'M/D h:mm A').format('M/D h:mm A')}`,
+            name: activity,
+            author: username
+        });
+    }
+    return false;
 };
 
 settings.clearSuggestions = guild_id => {
@@ -317,7 +357,7 @@ settings.getActivityTime = guild_id => {
     return guild ? guild.activity.time : null;
 };
 
-settings.setActivityName = (guild_id, time) => {
+settings.setActivityTime = (guild_id, time) => {
     const guild = settings.getGuild(guild_id);
     if (guild) {
         guild.activity.time = time;
@@ -353,6 +393,15 @@ settings.hasParticipant = (guild_id, name) => {
     const guild = settings.getGuild(guild_id);
     if (guild) {
         return guild.activity.participants.includes(name);
+    }
+    return false;
+};
+
+settings.clearParticipants = guild_id => {
+    const guild = settings.getGuild(guild_id);
+    if (guild) {
+        guild.activity.participants = [];
+        return true;
     }
     return false;
 };

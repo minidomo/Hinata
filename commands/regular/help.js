@@ -2,6 +2,7 @@
 
 const Discord = require('discord.js');
 const Settings = require('../../settings/settings');
+const Hex = require('../../util/hex');
 
 module.exports = {
     name: 'help',
@@ -12,17 +13,10 @@ module.exports = {
     },
     execute({ channel, guild }, obj) {
         helpEmbed
-            .setColor(`#${getHex()}`)
+            .setColor(`#${Hex.generate()}`)
             .setTitle(`Commands | Prefix: ${Settings.getPrefix(guild.id)}`);
         channel.send(helpEmbed);
     }
-};
-
-const getHex = () => {
-    let hex = (Math.random() * 16777216).toString(16).replace(/(\.[\d\w]+)?$/, '');
-    while (hex.length < 6)
-        hex = '0' + hex;
-    return hex;
 };
 
 const fs = require('fs');

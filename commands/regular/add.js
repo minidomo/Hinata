@@ -9,11 +9,12 @@ module.exports = {
     usage: 'add',
     validate(msg, obj, user) {
         user = user || msg.author.username;
-        if (!Settings.getChannelId(msg.guild.id)) {
-            msg.channel.send(`A channel must be set up to use this command.`)
+        if (Settings.getChannelId(msg.guild.id) !== msg.channel.id) {
+            msg.channel.send(`This channel must be set up to use this command here.`)
                 .then(feedback => feedback.delete(2000));
             return false;
-        } else if (Settings.hasParticipant(msg.guild.id, user)) {
+        }
+        if (Settings.hasParticipant(msg.guild.id, user)) {
             msg.channel.send(`**${user}** has already been added to the participant list.`)
                 .then(feedback => feedback.delete(2000));
             return false;
