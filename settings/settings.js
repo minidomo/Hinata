@@ -50,7 +50,7 @@ const fs = require('fs');
 const settings = {};
 
 settings.load = () => {
-    Logger.log('Loading settngs...');
+    Logger.info('Loading settngs...');
     const jsonToMap = jsonStr => new Map(JSON.parse(jsonStr));
     const removeGuilds = new Set(Object.keys(Settings));
     client.guilds.forEach((value, guild_id, map) => {
@@ -88,7 +88,7 @@ settings.load = () => {
         }
     });
     removeGuilds.forEach(guild_id => delete Settings[guild_id]);
-    Logger.log('Finished loading settings');
+    Logger.info('Finished loading settings');
 };
 
 settings.save = () => {
@@ -98,9 +98,9 @@ settings.save = () => {
         guild.suggest_system.votes = mapToJson(guild.suggest_system.votes);
         guild.suggest_system.user_votes = mapToJson(guild.suggest_system.user_votes);
     });
-    Logger.log('Saving settings...');
+    Logger.info('Saving settings...');
     fs.writeFileSync('./settings/settings.json', JSON.stringify(Settings, null, 4));
-    Logger.log('Finished saving settings');
+    Logger.info('Finished saving settings');
 };
 
 /**
@@ -274,7 +274,8 @@ settings.addVote = (guild_id, emote) => {
 settings.removeVote = (guild_id, emote) => {
     const guild = settings.getGuild(guild_id);
     if (guild) {
-        guild.suggest_system.votes.set(emote, votes.get(emote) - 1);
+        const votes = guild.suggest_system.votes;
+        votes.set(emote, votes.get(emote) - 1);
         return true;
     }
     return false;

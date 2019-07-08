@@ -3,7 +3,7 @@
 const client = require('./other/client');
 const Settings = require('./settings/settings');
 const Logger = require('./util/logger');
-const Handler = require('./other/handle');
+const Handler = require('./util/handle');
 const Poll = require('./channels/poll');
 const events = {
     MESSAGE_REACTION_ADD: 'messageReactionAdd',
@@ -13,7 +13,7 @@ const events = {
 client.once('ready', () => {
     Settings.load();
     client.user.setActivity('Volleyball!');
-    Logger.log(`Logged in as ${client.user.tag}`);
+    Logger.info(`Logged in as ${client.user.tag}`);
 });
 
 client.on('raw', async event => {
@@ -63,6 +63,8 @@ const exit = () => {
 process.on('SIGINT', exit);
 process.on('SIGTERM', exit);
 process.on('uncaughtException', err => {
-    Logger.realError(err);
+    Logger.error(`${err.name} - ${err.message}`);
+    if (err.stack)
+        Logger.error(err.stack);
     exit();
 });

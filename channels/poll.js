@@ -29,7 +29,7 @@ poll.create = async guild_id => {
         Settings.setMessageId(guild_id, message.id);
         return guild_id;
     } catch (err) {
-        Logger.realError(err);
+        Logger.error(err);
         throw err;
     }
 };
@@ -66,7 +66,6 @@ poll.update = async (guild_id, position = undefined) => {
         await message.edit(embed);
         return guild_id;
     } catch (err) {
-        Logger.realError(err);
         throw err;
     }
 };
@@ -85,7 +84,6 @@ poll.end = async (guild_id, emote) => {
         await Topic(guild_id);
         return guild_id;
     } catch (err) {
-        Logger.realError(err);
         throw err;
     }
 };
@@ -100,7 +98,6 @@ poll.forceEnd = async guild_id => {
         await Topic(guild_id);
         return guild_id;
     } catch (err) {
-        Logger.realError(err);
         throw err;
     }
 };
@@ -129,9 +126,7 @@ poll.handle = (reaction, user, adding) => {
     if (adding) {
         if (Settings.hasUserVote(guild_id, user.id)) {
             const oldEmote = Settings.getUserVotes(guild_id).get(user.id);
-            Settings.removeVote(guild_id, oldEmote)
             message.reactions.get(oldEmote).remove(user);
-            Settings.removeUserVote(guild_id, user.id);
         }
         Settings.addVote(guild_id, emote);
         Settings.addUserVote(guild_id, user.id, emote);
@@ -141,7 +136,8 @@ poll.handle = (reaction, user, adding) => {
         }
     } else {
         Settings.removeVote(guild_id, emote);
-        Settings.removeUserVote(guild_id, user.id);
+        if (Settings.getUserVotes(guild_id).get(user.id) === emote)
+            Settings.removeUserVote(guild_id, user.id);
     }
     return true;
 };

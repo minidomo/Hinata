@@ -7,7 +7,7 @@ const commands = {
     admin: new Map()
 };
 
-Logger.log('Loading commands...');
+Logger.info('Loading commands...');
 
 const fs = require('fs');
 let directories = fs.readdirSync('./commands').filter(directory => !directory.endsWith('.js'));
