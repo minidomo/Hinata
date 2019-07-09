@@ -4,8 +4,10 @@ const Discord = require('discord.js');
 const Hex = require('../../util/hex');
 
 const description = `This bot was made by JB Ladera and coded in JavaScript using the [Node.js runtime](https://nodejs.org/en/) and [discord.js library](https://discord.js.org/#/).\n`
-    + `The default prefix is \`/\` but can be changed via the command \`setprefix\`. Use \`/help\` to view regular commands and \`/helpadmin\` (admin only) to view admin commands.\n`
-    + `[Source code](https://github.com/MiniDomo/Volleyball)`;
+    + `• The default prefix is \`/\` but can be changed via \`/setprefix\`.\n`
+    + `• Use \`/help\` to view regular commands and \`/helpadmin\` (admin only) to view admin commands.\n`
+    + `• Use \`/setup\` in a text channel to set up a channel.\n`
+    + `[Source code](https://github.com/MiniDomo/Volleyball) • [Invite](https://discordapp.com/oauth2/authorize?client_id=587004440666570761&scope=bot&permissions=388176)`;
 
 const embed = new Discord.RichEmbed()
     .setTitle('About Me')

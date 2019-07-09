@@ -65,45 +65,49 @@ client.on('guildDelete', guild => {
 
 settings.load = () => {
     Logger.info('Loading settings...');
-    client.guilds.forEach((value, guild_id, map) => {
-        if (removeGuilds.has(guild_id)) {
-            removeGuilds.delete(guild_id);
-            const guild = settings.getGuild(guild_id);
-            const realGuild = map.get(guild_id);
-            guild.name = realGuild.name;
-            guild.suggest_system.votes = jsonToMap(guild.suggest_system.votes);
-            guild.suggest_system.user_votes = jsonToMap(guild.suggest_system.user_votes);
-            if (guild.channel.id) {
-                if (realGuild.channels.has(guild.channel.id)) {
-                    if (settings.getMessageId(guild_id)) {
-                        const channel = realGuild.channels.get(guild.channel.id);
-                        channel.fetchMessage(settings.getMessageId(guild_id))
+    client.guilds.forEach(guild => {
+        if (removeGuilds.has(guild.id)) {
+            Logger.info(`Loading settings for ${guild.name} (${guild.id})`);
+            removeGuilds.delete(guild.id);
+            const guildSettings = settings.getGuild(guild.id);
+            guildSettings.name = guild.name;
+            guildSettings.suggest_system.votes = jsonToMap(guildSettings.suggest_system.votes);
+            guildSettings.suggest_system.user_votes = jsonToMap(guildSettings.suggest_system.user_votes);
+            if (guildSettings.channel.id) {
+                if (guild.channels.has(guildSettings.channel.id)) {
+                    if (settings.getMessageId(guild.id)) {
+                        const channel = guild.channels.get(guildSettings.channel.id);
+                        channel.fetchMessage(settings.getMessageId(guild.id))
                             .catch(() => {
-                                settings.clearSuggestions(guild_id);
-                                settings.setMessageId(guild_id, null);
-                                settings.clearVotes(guild_id);
-                                settings.clearUserVotes(guild_id);
+                                settings.clearSuggestions(guild.id);
+                                settings.setMessageId(guild.id, null);
+                                settings.clearVotes(guild.id);
+                                settings.clearUserVotes(guild.id);
                             });
                     }
-                    Topic(guild_id);
+                    Topic(guild.id);
                 } else {
-                    settings.setChannelId(guild_id, null);
-                    settings.setChannelName(guild_id, null);
-                    settings.clearSuggestions(guild_id);
-                    settings.setMessageId(guild_id, null);
-                    settings.clearVotes(guild_id);
-                    settings.clearUserVotes(guild_id);
+                    settings.setChannelId(guild.id, null);
+                    settings.setChannelName(guild.id, null);
+                    settings.clearSuggestions(guild.id);
+                    settings.setMessageId(guild.id, null);
+                    settings.clearVotes(guild.id);
+                    settings.clearUserVotes(guild.id);
                 }
             }
         } else {
-            settings.addGuild(guild_id);
+            Logger.info(`Creating settings for ${guild.name} (${guild.id})`);
+            settings.addGuild(guild.id);
         }
     });
     Logger.info('Finished loading settings');
 };
 
 settings.save = () => {
-    removeGuilds.forEach(guild_id => delete Settings[guild_id]);
+    removeGuilds.forEach(guild_id => {
+        Logger.info(`Deleting settings for ${guild.name} (${guild.id})`);
+        delete Settings[guild_id]
+    });
     Object.keys(Settings).forEach(value => {
         const guild = Settings[value];
         guild.suggest_system.votes = mapToJson(guild.suggest_system.votes);

@@ -18,8 +18,6 @@ client.once('ready', () => {
 
 client.on('raw', async event => {
     const { t: type, d: data } = event;
-    if (type)
-        Logger.info(type);
     if (!Events[type])
         return;
     const user = client.users.get(data.user_id);
