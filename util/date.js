@@ -27,12 +27,12 @@ module.exports = {
     },
     checkDate(msg, date, time) {
         if (!this.isValidDate(date)) {
-            msg.channel.send('`<date>` must be in MM/DD format.')
+            msg.channel.send('`<date>` must be in M/D format.')
                 .then(feedback => feedback.delete(2000));
             return false;
         }
         if (!this.isValidTime(time)) {
-            msg.channel.send('`<time>` must be in HH/MM format. It is assumed that the time will be PM.')
+            msg.channel.send('`<time>` must be in H/MM format. It is assumed that the time will be PM.')
                 .then(feedback => feedback.delete(2000));
             return false;
         }

@@ -5,7 +5,7 @@ const Poll = require('../../channels/poll');
 
 module.exports = {
     name: 'endpoll',
-    desc: 'Force ends the poll.',
+    desc: 'Force ends the current poll.',
     usage: 'endpoll',
     validate(msg, obj) {
         const guild_id = msg.guild.id;

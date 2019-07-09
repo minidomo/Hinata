@@ -6,7 +6,7 @@ const Poll = require('../../channels/poll');
 module.exports = {
     name: 'setmin',
     desc: 'Sets the minimum votes for a suggestion to end the poll.',
-    usage: 'setmin <number>',
+    usage: 'setmin <minimum>',
     validate(msg, { args }) {
         if (args.length !== 1) {
             msg.channel.send(`Correct usage is \`${Settings.getPrefix(msg.guild.id)}${this.usage}\``)

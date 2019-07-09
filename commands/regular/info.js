@@ -7,7 +7,7 @@ const description = `This bot was made by JB Ladera and coded in JavaScript usin
     + `• The default prefix is \`/\` but can be changed via \`/setprefix\`.\n`
     + `• Use \`/help\` to view regular commands and \`/helpadmin\` (admin only) to view admin commands.\n`
     + `• Use \`/setup\` in a text channel to set up a channel.\n`
-    + `[Source code](https://github.com/MiniDomo/Volleyball) • [Invite](https://discordapp.com/oauth2/authorize?client_id=587004440666570761&scope=bot&permissions=388176)`;
+    + `[Source code](https://github.com/MiniDomo/Volleyball) • [Invite](https://discordapp.com/oauth2/authorize?client_id=598185736184922125&scope=bot&permissions=388176) • [Profile Picture](https://www.deviantart.com/haalhady/art/Hinata-Shoyo-676660460)`;
 
 const embed = new Discord.RichEmbed()
     .setTitle('About Me')

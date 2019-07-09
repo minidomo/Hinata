@@ -8,8 +8,8 @@ module.exports = {
     desc: 'Reverses the effects of `setup`.',
     usage: 'destroy',
     validate(msg, obj) {
-        if (!Settings.getChannelId(msg.guild.id)) {
-            msg.channel.send(`A channel has been set up.`)
+        if (Settings.getChannelId(msg.guild.id) !== msg.channel.id) {
+            msg.channel.send(`This channel must be set up to use this command here.`)
                 .then(feedback => feedback.delete(2000));
             return false;
         }
