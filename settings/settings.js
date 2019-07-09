@@ -42,7 +42,7 @@ const client = require('../other/client');
 
 const moment = require('moment');
 const Logger = require('../util/logger');
-const Topic = require('../channels/topic');
+const Topic = require('../channels/topic').update;
 const Settings = require('./settings.json') || {};
 
 const fs = require('fs');

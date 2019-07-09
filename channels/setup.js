@@ -2,7 +2,7 @@
 
 const Discord = require('discord.js');
 const Settings = require('../settings/settings');
-const Topic = require('./topic');
+const Topic = require('./topic').update;
 
 
 /**
