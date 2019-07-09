@@ -18,7 +18,7 @@ module.exports = {
                 + `Activity: ${Settings.getActivityName(guild_id)} | `
                 + `Time: ${Settings.getActivityTime(guild_id)} | `
                 + `Participants: ${participants.length} |`
-                + `\n${participants.join(', ') || '-'}`;
+                + `\n${participants.join(', ') || ''}`;
             await channel.setTopic(description);
         } catch (err) {
             throw err;

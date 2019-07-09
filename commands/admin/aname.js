@@ -4,9 +4,9 @@ const Settings = require('../../settings/settings');
 const Add = require('../regular/add');
 
 module.exports = {
-    name: 'addname',
+    name: 'aname',
     desc: 'Adds someone to the participant list.',
-    usage: 'addname <name>',
+    usage: 'aname <name>',
     validate(msg, { args }) {
         if (args.length === 0) {
             msg.channel.send(`Correct usage is \`${Settings.getPrefix(msg.guild.id)}${this.usage}\``)

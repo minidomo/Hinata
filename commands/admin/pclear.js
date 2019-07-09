@@ -1,7 +1,7 @@
 'use strict';
 
 const Settings = require('../../settings/settings');
-const Topic = require('../../channels/topic');
+const Topic = require('../../channels/topic').update;
 
 module.exports = {
     name: 'pclear',

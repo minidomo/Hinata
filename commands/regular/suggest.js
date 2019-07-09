@@ -1,7 +1,7 @@
 'use strict';
 
 const Settings = require('../../settings/settings');
-const Topic = require('../../channels/topic');
+const Topic = require('../../channels/topic').update;
 const DateCheck = require('../../util/date');
 const StringFormat = require('../../util/stringformat');
 const Poll = require('../../channels/poll');

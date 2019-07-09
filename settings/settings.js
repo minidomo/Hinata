@@ -78,9 +78,6 @@ settings.load = () => {
                     if (settings.getMessageId(guild_id)) {
                         const channel = realGuild.channels.get(guild.channel.id);
                         channel.fetchMessage(settings.getMessageId(guild_id))
-                            .then(() => {
-                                channel.messages.clear();
-                            })
                             .catch(() => {
                                 settings.clearSuggestions(guild_id);
                                 settings.setMessageId(guild_id, null);

@@ -18,16 +18,20 @@ client.once('ready', () => {
 
 client.on('raw', async event => {
     const { t: type, d: data } = event;
+    if (type)
+        Logger.info(type);
     if (!Events[type])
         return;
     const user = client.users.get(data.user_id);
     const channel = client.channels.get(data.channel_id);
-    if (channel.messages.has(data.message_id))
-        return;
-    const message = await channel.fetchMessage(data.message_id);
+    const message = channel.messages.get(data.message_id) || await channel.fetchMessage(data.message_id);
     const emojiKey = data.emoji.id ? `${data.emoji.name}:${data.emoji.id}` : data.emoji.name;
     const reaction = message.reactions.get(emojiKey);
-    client.emit(Events[type], reaction, user);
+    if (user.id === client.user.id || reaction.message.channel.type !== 'text')
+        return;
+    if (reaction.message.author.id === client.user.id) {
+        Poll.handle(reaction, user, Events[type] === Events.MESSAGE_REACTION_ADD);
+    }
 });
 
 client.on('message', msg => {
@@ -36,22 +40,6 @@ client.on('message', msg => {
     const res = Handler.getArgs(msg);
     if (res) {
         Handler.handle(msg, res);
-    }
-});
-
-client.on('messageReactionAdd', (reaction, user) => {
-    if (user.id === client.user.id || reaction.message.channel.type !== 'text')
-        return;
-    if (reaction.message.author.id === client.user.id) {
-        Poll.handle(reaction, user, true);
-    }
-});
-
-client.on('messageReactionRemove', (reaction, user) => {
-    if (user.id === client.user.id || reaction.message.channel.type !== 'text')
-        return;
-    if (reaction.message.author.id === client.user.id) {
-        Poll.handle(reaction, user, false);
     }
 });
 

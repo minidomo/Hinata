@@ -4,9 +4,9 @@ const Settings = require('../../settings/settings');
 const Remove = require('../regular/remove');
 
 module.exports = {
-    name: 'removename',
+    name: 'rname',
     desc: 'Removes someone to the participant list.',
-    usage: 'removename <name>',
+    usage: 'rname <name>',
     validate(msg, { args }) {
         if (args.length === 0) {
             msg.channel.send(`Correct usage is \`${Settings.getPrefix(msg.guild.id)}${this.usage}\``)
