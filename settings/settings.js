@@ -49,10 +49,22 @@ const fs = require('fs');
 
 const settings = {};
 
+const removeGuilds = new Set(Object.keys(Settings));
+const jsonToMap = jsonStr => new Map(JSON.parse(jsonStr));
+const mapToJson = map => map.size > 0 ? JSON.stringify([...map]) : "[]";
+
+client.on('guildCreate', guild => {
+    Logger.info(`Creating settings for ${guild.name} (${guild.id})`);
+    settings.addGuild(guild.id);
+});
+
+client.on('guildDelete', guild => {
+    Logger.info(`Deleting settings for ${guild.name} (${guild.id})`);
+    delete Settings[guild.id];
+});
+
 settings.load = () => {
-    Logger.info('Loading settngs...');
-    const jsonToMap = jsonStr => new Map(JSON.parse(jsonStr));
-    const removeGuilds = new Set(Object.keys(Settings));
+    Logger.info('Loading settings...');
     client.guilds.forEach((value, guild_id, map) => {
         if (removeGuilds.has(guild_id)) {
             removeGuilds.delete(guild_id);
@@ -66,6 +78,9 @@ settings.load = () => {
                     if (settings.getMessageId(guild_id)) {
                         const channel = realGuild.channels.get(guild.channel.id);
                         channel.fetchMessage(settings.getMessageId(guild_id))
+                            .then(() => {
+                                channel.messages.clear();
+                            })
                             .catch(() => {
                                 settings.clearSuggestions(guild_id);
                                 settings.setMessageId(guild_id, null);
@@ -87,12 +102,11 @@ settings.load = () => {
             settings.addGuild(guild_id);
         }
     });
-    removeGuilds.forEach(guild_id => delete Settings[guild_id]);
     Logger.info('Finished loading settings');
 };
 
 settings.save = () => {
-    const mapToJson = map => JSON.stringify([...map]);
+    removeGuilds.forEach(guild_id => delete Settings[guild_id]);
     Object.keys(Settings).forEach(value => {
         const guild = Settings[value];
         guild.suggest_system.votes = mapToJson(guild.suggest_system.votes);

@@ -5,7 +5,7 @@ const Settings = require('./settings/settings');
 const Logger = require('./util/logger');
 const Handler = require('./util/handle');
 const Poll = require('./channels/poll');
-const events = {
+const Events = {
     MESSAGE_REACTION_ADD: 'messageReactionAdd',
     MESSAGE_REACTION_REMOVE: 'messageReactionRemove'
 };
@@ -18,7 +18,7 @@ client.once('ready', () => {
 
 client.on('raw', async event => {
     const { t: type, d: data } = event;
-    if (!events[type])
+    if (!Events[type])
         return;
     const user = client.users.get(data.user_id);
     const channel = client.channels.get(data.channel_id);
@@ -27,7 +27,7 @@ client.on('raw', async event => {
     const message = await channel.fetchMessage(data.message_id);
     const emojiKey = data.emoji.id ? `${data.emoji.name}:${data.emoji.id}` : data.emoji.name;
     const reaction = message.reactions.get(emojiKey);
-    client.emit(events[type], reaction, user);
+    client.emit(Events[type], reaction, user);
 });
 
 client.on('message', msg => {

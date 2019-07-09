@@ -21,7 +21,6 @@ module.exports = async guild_id => {
             + `\n${participants.join(', ') || '-'}`;
         await channel.setTopic(description);
     } catch (err) {
-        Logger.error(err);
         throw err;
     }
 };
