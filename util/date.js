@@ -32,7 +32,7 @@ module.exports = {
             return false;
         }
         if (!this.isValidTime(time)) {
-            msg.channel.send('`<time>` must be in H/MM format. It is assumed that the time will be PM.')
+            msg.channel.send('`<time>` must be in H:MM format. It is assumed that the time will be PM.')
                 .then(feedback => feedback.delete(2000));
             return false;
         }
