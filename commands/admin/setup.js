@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 const Setup = require('../../channels/setup');
 
 module.exports = {
@@ -8,7 +8,7 @@ module.exports = {
     desc: 'Sets up the current channel.',
     usage: 'setup',
     validate(msg, obj) {
-        if (msg.channel.id === Settings.getChannelId(msg.guild.id)) {
+        if (Settings.get(msg.guild.id).channel.id === msg.channel.id) {
             msg.channel.send('This channel is already set up.')
                 .then(feedback => feedback.delete(2000));
             return false;

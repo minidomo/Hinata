@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 const Topic = require('../../channels/topic').update;
 const StringFormat = require('../../util/stringformat');
 
@@ -9,13 +9,14 @@ module.exports = {
     desc: 'Sets the activity.',
     usage: 'setactivity <activity',
     validate(msg, { args }) {
-        if (Settings.getChannelId(msg.guild.id) !== msg.channel.id) {
+        const guildSettings = Settings.get(msg.guild.id);
+        if (guildSettings.channel.id !== msg.channel.id) {
             msg.channel.send(`This channel must be set up to use this command here.`)
                 .then(feedback => feedback.delete(2000));
             return false;
         }
         if (args.length === 0) {
-            msg.channel.send(`Correct usage is \`${Settings.getPrefix(msg.guild.id)}${this.usage}\``)
+            msg.channel.send(`Correct usage is \`${guildSettings.prefix}${this.usage}\``)
                 .then(feedback => feedback.delete(2000));
             return false;
         }
@@ -24,7 +25,7 @@ module.exports = {
     execute(msg, { args }) {
         const full = args.join(' ');
         const fixed = StringFormat.capitalize(full);
-        Settings.setActivityName(msg.guild.id, fixed);
+        Settings.get(msg.guild.id).activity.name = fixed;
         Topic(msg.guild.id);
         msg.channel.send(`The activity has been changed to: **${fixed}**`);
     }

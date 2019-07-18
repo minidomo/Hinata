@@ -7,16 +7,17 @@ const regex = /\n*\d+\/10 Suggestions \| Activity: .+ \| Time: .+ \| Participant
 module.exports = {
     async update(guild_id) {
         try {
-            const Settings = require('../settings/settings');
-            const channel = client.guilds.get(guild_id).channels.get(Settings.getChannelId(guild_id));
+            const { Settings } = require('../settings/settings');
+            const guildSettings = Settings.get(guild_id);
+            const channel = client.guilds.get(guild_id).channels.get(guildSettings.channel.id);
             let currentTopic = channel.topic || '';
             if (regex.test(currentTopic))
                 [currentTopic] = currentTopic.split(regex);
-            const participants = Settings.getActivityParticipants(guild_id);
+            const participants = guildSettings.activity.participants.array();
             const description = `${currentTopic}\n`
-                + `${Settings.getSuggestions(guild_id).length}/10 Suggestions | `
-                + `Activity: ${Settings.getActivityName(guild_id)} | `
-                + `Time: ${Settings.getActivityTime(guild_id)} | `
+                + `${guildSettings.suggest_system.suggestions.size()}/10 Suggestions | `
+                + `Activity: ${guildSettings.activity.name} | `
+                + `Time: ${guildSettings.activity.time} | `
                 + `Participants: ${participants.length} |`
                 + `\n${participants.join(', ') || ''}`;
             await channel.setTopic(description);
@@ -26,8 +27,9 @@ module.exports = {
     },
     async clean(guild_id) {
         try {
-            const Settings = require('../settings/settings');
-            const channel = client.guilds.get(guild_id).channels.get(Settings.getChannelId(guild_id));
+            const { Settings } = require('../settings/settings');
+            const guildSettings = Settings.get(guild_id);
+            const channel = client.guilds.get(guild_id).channels.get(guildSettings.channel.id);
             let currentTopic = channel.topic || '';
             if (regex.test(currentTopic))
                 [currentTopic] = currentTopic.split(regex);

@@ -1,7 +1,11 @@
 'use strict';
 
 module.exports = {
+    /**
+     * 
+     * @param {string} str 
+     */
     capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.substr(1);
+        return str[0].toUpperCase() + str.substr(1);
     }
 };

@@ -1,7 +1,7 @@
 'use strict';
 
 const client = require('./other/client');
-const Settings = require('./settings/settings');
+const { Load, Save } = require('./settings/settings');
 const Logger = require('./util/logger');
 const Handler = require('./util/handle');
 const Poll = require('./channels/poll');
@@ -11,7 +11,7 @@ const Events = {
 };
 
 client.once('ready', () => {
-    Settings.load();
+    Load();
     client.user.setActivity('Volleyball!');
     Logger.info(`Logged in as ${client.user.tag}`);
 });
@@ -42,7 +42,7 @@ client.on('message', msg => {
 });
 
 const exit = () => {
-    Settings.save();
+    Save();
     process.exit(0);
 };
 

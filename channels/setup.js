@@ -1,7 +1,7 @@
 'use strict';
 
 const Discord = require('discord.js');
-const Settings = require('../settings/settings');
+const { Settings } = require('../settings/settings');
 const Topic = require('./topic').update;
 
 
@@ -10,11 +10,8 @@ const Topic = require('./topic').update;
  */
 module.exports = msg => {
     const guild_id = msg.guild.id;
-    Settings.setChannelId(guild_id, msg.channel.id);
-    Settings.setChannelName(guild_id, msg.channel.name);
-    Settings.setMessageId(guild_id, null);
-    Settings.clearVotes(guild_id);
-    Settings.clearUserVotes(guild_id);
-    Settings.clearSuggestions(guild_id);
+    const guildSettings = Settings.get(guild_id);
+    guildSettings.channel.set({ id: msg.channel.id, name: msg.channel.name });
+    guildSettings.suggest_system.clear();
     Topic(guild_id);
 };

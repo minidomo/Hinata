@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 const Add = require('../regular/add');
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
     usage: 'aname <name>',
     validate(msg, { args }) {
         if (args.length === 0) {
-            msg.channel.send(`Correct usage is \`${Settings.getPrefix(msg.guild.id)}${this.usage}\``)
+            msg.channel.send(`Correct usage is \`${Settings.get(msg.guild.id).prefix}${this.usage}\``)
                 .then(feedback => feedback.delete(2000));
             return false;
         }

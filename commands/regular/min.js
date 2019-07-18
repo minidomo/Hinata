@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 
 module.exports = {
     name: 'min',
@@ -10,7 +10,7 @@ module.exports = {
         return true;
     },
     execute(msg, obj) {
-        msg.channel.send(`The minimum votes is: ${Settings.getSuggestMinimum(msg.guild.id)}`)
+        msg.channel.send(`The minimum votes is: ${Settings.get(msg.guild.id).suggest_system.minimum}`)
             .then(feedback => feedback.delete(2000));
     }
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 const Topic = require('../../channels/topic').update;
 
 module.exports = {
@@ -9,12 +9,13 @@ module.exports = {
     usage: 'remove',
     validate(msg, obj, user) {
         user = user || msg.author.username;
-        if (Settings.getChannelId(msg.guild.id) !== msg.channel.id) {
+        const guildSettings = Settings.get(msg.guild.id);
+        if (guildSettings.channel.id !== msg.channel.id) {
             msg.channel.send(`This channel must be set up to use this command here.`)
                 .then(feedback => feedback.delete(2000));
             return false;
         }
-        if (!Settings.hasParticipant(msg.guild.id, user)) {
+        if (!guildSettings.activity.participants.has(user)) {
             msg.channel.send(`**${user}** has not been added to the participant list.`)
                 .then(feedback => feedback.delete(2000));
             return false;
@@ -23,7 +24,7 @@ module.exports = {
     },
     execute(msg, obj, user) {
         user = user || msg.author.username;
-        Settings.removeParticipant(msg.guild.id, user);
+        Settings.get(msg.guild.id).activity.participants.remove(user);
         msg.channel.send(`**${user}** has been removed from the participant list.`)
             .then(feedback => feedback.delete(2000));
         Topic(msg.guild.id);

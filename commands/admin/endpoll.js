@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 const Poll = require('../../channels/poll');
 
 module.exports = {
@@ -9,7 +9,8 @@ module.exports = {
     usage: 'endpoll',
     validate(msg, obj) {
         const guild_id = msg.guild.id;
-        if (Settings.getChannelId(guild_id) !== msg.channel.id) {
+        const guildSettings = Settings.get(guild_id);
+        if (guildSettings.channel.id !== msg.channel.id) {
             msg.channel.send(`This channel must be set up to use this command here.`)
                 .then(feedback => feedback.delete(2000));
             return false;

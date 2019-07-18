@@ -2,11 +2,10 @@
 
 const Discord = require('discord.js');
 const client = require('../other/client');
-const Settings = require('../settings/settings');
+const { Settings } = require('../settings/settings');
 const Emotes = require('../other/emotes');
 const moment = require('moment');
 const Topic = require('./topic').update;
-const Logger = require('../util/logger');
 const Hex = require('../util/hex');
 const poll = {};
 
@@ -15,7 +14,8 @@ const poll = {};
  */
 poll.create = async guild_id => {
     try {
-        const channel_id = Settings.getChannelId(guild_id);
+        const guildSettings = Settings.get(guild_id);
+        const channel_id = guildSettings.channel.id;
         /**
          * @type {Discord.TextChannel}
          */
@@ -26,10 +26,9 @@ poll.create = async guild_id => {
             .setDescription(description(guild_id))
             .setTimestamp();
         const message = await channel.send(embed);
-        Settings.setMessageId(guild_id, message.id);
+        guildSettings.suggest_system.message_id = message.id;
         return guild_id;
     } catch (err) {
-        Logger.error(err);
         throw err;
     }
 };
@@ -40,22 +39,23 @@ poll.create = async guild_id => {
  */
 poll.update = async (guild_id, position = undefined) => {
     try {
-        const channel_id = Settings.getChannelId(guild_id);
+        const guildSettings = Settings.get(guild_id);
+        const channel_id = guildSettings.channel.id;
         /**
          * @type {Discord.TextChannel}
          */
         const channel = client.guilds.get(guild_id).channels.get(channel_id);
-        const message = await channel.fetchMessage(Settings.getMessageId(guild_id));
+        const message = await channel.fetchMessage(guildSettings.suggest_system.message_id);
         const embed = new Discord.RichEmbed()
             .setColor(`#${Hex.generate()}`)
             .setTitle('Activity Poll')
             .setDescription(description(guild_id))
             .setTimestamp();
-        const suggestions = Settings.getSuggestions(guild_id);
+        const suggestions = guildSettings.suggest_system.suggestions.array();
         const emotes = getValidEmotes(guild_id);
         for (let x = 0; x < suggestions.length; x++) {
-            const { author, date, name } = suggestions[x];
-            const formattedDate = moment(date, 'M/D h:mm A').format('dddd MMMM D, h:mm A');
+            const { author, time, name } = suggestions[x];
+            const formattedDate = moment(time, 'M/D h:mm A').format('dddd MMMM D, h:mm A');
             const selection = typeof position === 'number';
             const emote = selection ? Emotes[position === x ? 'check' : 'crossmark'] : emotes[x];
             const fieldName = `${emote} ${name} - ${formattedDate} - ${author}`;
@@ -74,13 +74,11 @@ poll.end = async (guild_id, emote) => {
     try {
         const position = getEmotePosition(guild_id, emote);
         await poll.update(guild_id, position);
-        Settings.setMessageId(guild_id, null);
-        Settings.clearVotes(guild_id);
-        Settings.clearUserVotes(guild_id);
-        const { name, date } = Settings.getSuggestions(guild_id)[position];
-        Settings.setActivityName(guild_id, name);
-        Settings.setActivityTime(guild_id, date);
-        Settings.clearSuggestions(guild_id);
+        const guildSettings = Settings.get(guild_id);
+        const suggest_system = guildSettings.suggest_system;
+        const { name, time } = suggest_system.suggestions.array()[position];
+        guildSettings.activity.set({ time: time, name: name });
+        suggest_system.clear();
         await Topic(guild_id);
         return guild_id;
     } catch (err) {
@@ -90,11 +88,9 @@ poll.end = async (guild_id, emote) => {
 
 poll.forceEnd = async guild_id => {
     try {
+        const guildSettings = Settings.get(guild_id);
         await poll.update(guild_id, -1);
-        Settings.setMessageId(guild_id, null);
-        Settings.clearVotes(guild_id);
-        Settings.clearUserVotes(guild_id);
-        Settings.clearSuggestions(guild_id);
+        guildSettings.suggest_system.clear();
         await Topic(guild_id);
         return guild_id;
     } catch (err) {
@@ -103,7 +99,7 @@ poll.forceEnd = async guild_id => {
 };
 
 poll.exists = guild_id => {
-    if (Settings.getMessageId(guild_id))
+    if (Settings.get(guild_id).suggest_system.message_id)
         return true;
     return false;
 };
@@ -116,7 +112,9 @@ poll.exists = guild_id => {
 poll.handle = (reaction, user, adding) => {
     const { message } = reaction;
     const guild_id = message.guild.id;
-    if (Settings.getChannelId(guild_id) !== message.channel.id || message.id !== Settings.getMessageId(guild_id))
+    const guildSettings = Settings.get(guild_id);
+    const suggest_system = guildSettings.suggest_system;
+    if (guildSettings.channel.id !== message.channel.id || message.id !== suggest_system.message_id)
         return false;
     const emote = reaction.emoji.name;
     if (!isValidEmote(guild_id, emote)) {
@@ -124,20 +122,20 @@ poll.handle = (reaction, user, adding) => {
         return false;
     }
     if (adding) {
-        if (Settings.hasUserVote(guild_id, user.id)) {
-            const oldEmote = Settings.getUserVotes(guild_id).get(user.id);
+        if (suggest_system.users.has(user.id)) {
+            const oldEmote = suggest_system.users.get(user.id);
             message.reactions.get(oldEmote).remove(user);
         }
-        Settings.addVote(guild_id, emote);
-        Settings.addUserVote(guild_id, user.id, emote);
-        const count = Settings.getVotes(guild_id).get(emote);
-        if (count === Settings.getSuggestMinimum(guild_id)) {
+        suggest_system.votes.increase(emote);
+        suggest_system.users.set(user.id, emote);
+        const count = suggest_system.votes.get(emote);
+        if (count === suggest_system.minimum) {
             poll.end(guild_id, emote);
         }
     } else {
-        Settings.removeVote(guild_id, emote);
-        if (Settings.getUserVotes(guild_id).get(user.id) === emote)
-            Settings.removeUserVote(guild_id, user.id);
+        suggest_system.votes.decrease(emote);
+        if (suggest_system.users.get(user.id) === emote)
+            suggest_system.users.delete(user.id);
     }
     return true;
 };
@@ -151,7 +149,7 @@ const isValidEmote = (guild_id, emoji) => {
  * @returns {string[]}
  */
 const getValidEmotes = guild_id => {
-    const suggestions = Settings.getSuggestions(guild_id);
+    const suggestions = Settings.get(guild_id).suggest_system.suggestions.array();
     const emotes = Object.keys(Emotes).filter(key => {
         if (!/^\d+$/.test(key))
             return false;
@@ -167,10 +165,11 @@ const getEmotePosition = (guild_id, emoji) => {
 };
 
 const description = guild_id => {
-    const prefix = Settings.getPrefix(guild_id);
+    const guildSettings = Settings.get(guild_id);
+    const prefix = guildSettings.prefix;
     let desc = `Vote for a time to play an activity by reacting with the corresponding emojis below. `
         + `The poll can take up to 10 suggestions at a time, and once that limit has been reached, no suggestions will be be taken until the poll ends. `
-        + `The poll ends when one suggestion reaches ${Settings.getSuggestMinimum(guild_id)} vote(s) (excluding the bot's vote) or when \`${prefix}endpoll\` is used (admin only). `
+        + `The poll ends when one suggestion reaches ${guildSettings.suggest_system.minimum} vote(s) (excluding the bot's vote) or when \`${prefix}endpoll\` is used (admin only). `
         + `Use \`${prefix}suggest\` to suggest a date and time to do an activity.`
     return desc;
 };

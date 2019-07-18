@@ -1,7 +1,7 @@
 'use strict';
 
 const Discord = require('discord.js');
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 const Hex = require('../../util/hex');
 
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
     execute({ author, guild }, obj) {
         helpEmbed
             .setColor(`#${Hex.generate()}`)
-            .setTitle(`Commands | Prefix: ${Settings.getPrefix(guild.id)}`);
+            .setTitle(`Commands | Prefix: ${Settings.get(guild.id).prefix}`);
         author.send(helpEmbed);
     }
 };

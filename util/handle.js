@@ -1,13 +1,13 @@
 'use strict';
 
-const Settings = require('../settings/settings');
+const { Settings } = require('../settings/settings');
 const Discord = require('discord.js');
 const { regular, admin } = require('../commands/commands');
 
 module.exports = {
     getArgs(msg) {
         const { content, guild } = msg;
-        const prefix = Settings.getPrefix(guild.id);
+        const prefix = Settings.get(guild.id).getPrefix();
         if (content.startsWith(prefix)) {
             const match = /^([^\w\d\s]+)/.exec(content);
             if (match[1] === prefix) {

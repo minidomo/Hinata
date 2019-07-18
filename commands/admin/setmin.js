@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 const Poll = require('../../channels/poll');
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
     usage: 'setmin <minimum>',
     validate(msg, { args }) {
         if (args.length !== 1) {
-            msg.channel.send(`Correct usage is \`${Settings.getPrefix(msg.guild.id)}${this.usage}\``)
+            msg.channel.send(`Correct usage is \`${Settings.get(msg.guild.id).prefix}${this.usage}\``)
                 .then(feedback => feedback.delete(2000));
             return false;
         }
@@ -27,7 +27,7 @@ module.exports = {
     },
     execute(msg, { args }) {
         const num = Math.max(1, parseInt(args[0]));
-        Settings.setSuggestMinimum(msg.guild.id, num);
+        Settings.get(msg.guild.id).suggest_system.minimum = num;
         msg.channel.send(`The minimum votes has been changed to: ${num}`);
     }
 };

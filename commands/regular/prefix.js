@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 
 module.exports = {
     name: 'prefix',
@@ -10,7 +10,7 @@ module.exports = {
         return true;
     },
     execute(msg, obj) {
-        msg.channel.send(`The prefix is: \`${Settings.getPrefix(msg.guild.id)}\``)
+        msg.channel.send(`The prefix is: \`${Settings.get(msg.guild.id).prefix}\``)
             .then(feedback => feedback.delete(2000));
     }
 };

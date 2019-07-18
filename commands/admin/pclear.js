@@ -1,6 +1,6 @@
 'use strict';
 
-const Settings = require('../../settings/settings');
+const { Settings } = require('../../settings/settings');
 const Topic = require('../../channels/topic').update;
 
 module.exports = {
@@ -8,7 +8,8 @@ module.exports = {
     desc: 'Clears the participant list.',
     usage: 'pclear',
     validate(msg, obj) {
-        if (Settings.getChannelId(msg.guild.id) !== msg.channel.id) {
+        const guildSettings = Settings.get(msg.guild.id);
+        if (guildSettings.channel.id !== msg.channel.id) {
             msg.channel.send(`This channel must be set up to use this command here.`)
                 .then(feedback => feedback.delete(2000));
             return false;
@@ -16,7 +17,7 @@ module.exports = {
         return true;
     },
     execute(msg, obj) {
-        Settings.clearParticipants(msg.guild.id);
+        Settings.get(msg.guild.id).activity.participants.clear();
         Topic(msg.guild.id);
         msg.channel.send('The participant list has been cleared.');
     }
