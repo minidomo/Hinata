@@ -28,13 +28,13 @@ const Load = () => {
             Logger.info(`Loading settings for ${guild.name} (${guild.id})`);
             removeGuilds.delete(guild.id);
             const guildSettings = new Class.GuildSettings(settingsjson[guild.id]);
-            const channelInfo = guildSettings.getChannel();
-            if (channelInfo.getId()) {
-                let suggest_system = guildSettings.getSuggestSystem();
-                if (guild.channels.has(channelInfo.getId())) {
-                    if (suggest_system.getMessageId()) {
-                        const channel = guild.channels.get(channelInfo.getId());
-                        channel.fetchMessage(suggest_system.getMessageId())
+            const channelInfo = guildSettings.channel;
+            if (channelInfo.id) {
+                let suggest_system = guildSettings.suggest_system;
+                if (guild.channels.has(channelInfo.id)) {
+                    if (suggest_system.message_id) {
+                        const channel = guild.channels.get(channelInfo.id);
+                        channel.fetchMessage(suggest_system.message_id)
                             .catch(() => {
                                 suggest_system.clear();
                             });
