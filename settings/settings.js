@@ -58,7 +58,7 @@ const Load = () => {
 
 const Save = () => {
     removeGuilds.forEach(guild_id => {
-        Logger.info(`Deleting settings for ${guild.name} (${guild.id})`);
+        Logger.info(`Deleting settings for ${settings.get(guild_id).name} (${guild_id})`);
         settings.delete(guild_id);
     });
     Logger.info('Saving settings...');
