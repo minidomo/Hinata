@@ -6,22 +6,28 @@ const { regular, admin } = require('../commands/commands');
 
 module.exports = {
     getArgs(msg) {
-        const { content, guild } = msg;
-        const prefix = Settings.get(guild.id).getPrefix();
-        if (content.startsWith(prefix)) {
-            const match = /^([^\w\d\s]+)/.exec(content);
-            if (match[1] === prefix) {
-                let arr;
-                if (typeof content === 'string') {
-                    arr = content.substr(prefix.length).split(/\s+/g);
-                } else {
-                    arr = content.slice();
+        const content = msg.content;
+        const guild = msg.guild;
+        if (content && guild && guild.id) {
+            const guildSettings = Settings.get(guild.id);
+            if (guildSettings) {
+                const prefix = guildSettings.getPrefix();
+                if (content.startsWith(prefix)) {
+                    const match = /^([^\w\d\s]+)/.exec(content);
+                    if (match[1] === prefix) {
+                        let arr;
+                        if (typeof content === 'string') {
+                            arr = content.substr(prefix.length).split(/\s+/g);
+                        } else {
+                            arr = content.slice();
+                        }
+                        msg.delete(2000);
+                        return {
+                            base: arr.shift().toLowerCase(),
+                            args: arr
+                        };
+                    }
                 }
-                msg.delete(2000);
-                return {
-                    base: arr.shift().toLowerCase(),
-                    args: arr
-                };
             }
         }
         return undefined;
