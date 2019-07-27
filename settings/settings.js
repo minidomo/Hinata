@@ -53,16 +53,16 @@ const Load = () => {
             settings.set(guild.id, new Class.GuildSettings({ name: guild.name }));
         }
     });
+    removeGuilds.forEach(id => {
+        settings.set(id, new Class.GuildSettings(settingsjson[id]));
+    });
     Logger.info('Finished loading settings');
 };
 
 const Save = () => {
     removeGuilds.forEach(guild_id => {
-        const guildSettings = settings.get(guild_id);
-        if (guildSettings) {
-            Logger.info(`Deleting settings for ${guildSettings.name} (${guild_id})`); // fixed guild name
-            settings.delete(guild_id);
-        }
+        Logger.info(`Deleting settings for ${guildSettings.name} (${guild_id})`); // fixed guild name
+        settings.delete(guild_id);
     });
     Logger.info('Saving settings...');
     fs.writeFileSync('./settings/settings.json', settings.toJson());
