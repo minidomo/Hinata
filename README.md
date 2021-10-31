@@ -1,6 +1,5 @@
 # Hinata
 This was originally created for my friend's server to set up dates for volleyball.  
-[`Invite`](https://discordapp.com/oauth2/authorize?client_id=598185736184922125&scope=bot&permissions=388176)  
 
 ## Commands
 Default prefix is `/` but can be changed via `/setprefix`
